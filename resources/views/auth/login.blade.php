@@ -1,6 +1,47 @@
 <x-guest-layout>
+
+
+
+
+  
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
+
+  @push('styles')
+    <style>
+        /* Aplicamos el fondo solo al contenedor de esta página */
+        #guest-container {
+            background-image: url('{{ asset('img/imagen3.jpg') }}') !important;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Estilo de cristal solo para el formulario de login */
+        .custom-glass {
+            background: rgba(255, 255, 255, 0.15) !important; 
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: white !important;
+        }
+
+        /* Estilos para inputs específicos de esta página */
+        .custom-glass input {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        .custom-glass label {
+    color: #ffffff !important; /* Blanco puro */
+    /* O puedes usar #e0f2fe si prefieres un azul muy clarito */
+    font-weight: 600;
+}
+
+/* Color para el texto de "Olvidaste tu contraseña" o "Recuérdame" */
+.custom-glass a, .custom-glass span {
+    color: #f3f4f6 !important;
+}
+    </style>
+    @endpush
 
     <form method="POST" action="{{ route('login') }}">
         @csrf

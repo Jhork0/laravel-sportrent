@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-
+use App\Models\Persona;
 class RegisteredUserController extends Controller
 {
     /**
@@ -28,29 +28,47 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+public function store(Request $request): RedirectResponse
 {
-    // 1. Validamos usando tus campos: cedula y usuario_login
     $request->validate([
-        'cedula_persona' => ['required', 'string', 'max:20', 'unique:usuario'],
-        'usuario_login'  => ['required', 'string', 'max:100', 'unique:usuario'],
-        'password'       => ['required', 'confirmed', Rules\Password::defaults()],
+        'cedula_persona' => ['required', 'string', 'max:20', 'unique:persona,cedula_persona'],
+        'name' => ['required', 'string', 'max:255'], // El nombre completo del input
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:persona,correo'], 
+        'direccion' => ['required', 'string', 'max:255'],
+        'telefono' => ['required', 'string', 'max:20'],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
     ]);
 
-    // 2. Creamos el usuario en la tabla 'usuario'
-    // Nota: Asegúrate de que la 'cedula_persona' ya exista en la tabla 'persona'
-    // o crea ambas al tiempo.
+    // Lógica para repartir el nombre completo en tus columnas de persona
+    $nombres = explode(' ', $request->name);
+    $primer_nombre = $nombres[0] ?? '';
+    $segundo_nombre = $nombres[1] ?? '';
+    $primer_apellido = $nombres[2] ?? '';
+    $segundo_apellido = $nombres[3] ?? '';
+
+    // PASO 1: Crear Persona con tus columnas exactas
+    Persona::create([
+        'cedula_persona' => $request->cedula_persona,
+        'primer_nombre' => $primer_nombre,
+        'segundo_nombre' => $segundo_nombre,
+        'primer_apellido' => $primer_apellido,
+        'segundo_apellido' => $segundo_apellido,
+        'correo' => $request->email,
+        'direccion' => $request->direccion,
+        'telefono' => $request->telefono,
+    ]);
+
+    // PASO 2: Crear Usuario
     $user = User::create([
         'cedula_persona' => $request->cedula_persona,
-        'usuario_login'  => $request->usuario_login,
-        'contrasena'     => Hash::make($request->password), // Usamos 'contrasena'
-        'estado'         => 'activo',
+        'usuario_login' => $request->email, // Login con el correo
+        'contrasena' => Hash::make($request->password),
+        'estado' => 'activo',
     ]);
 
     event(new Registered($user));
-
     Auth::login($user);
 
-    return redirect(route('dashboard', absolute: false));
+    return redirect(route('dashboard'));
 }
 }
