@@ -38,9 +38,10 @@
                                 <i class="fas fa-map-marker-alt"></i> {{ $cancha->direccion_cancha }}
                             </p>
 
-                            <button class="mt-6 w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition">
-                                Ver Detalles / Reservar
-                            </button>
+                            <a href="{{ route('canchas.show', $cancha->id_cancha) }}" 
+   class="mt-6 w-full block text-center bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900 transition">
+    Ver Detalles / Reservar
+</a>
                         </div>
                     </div>
                 @empty

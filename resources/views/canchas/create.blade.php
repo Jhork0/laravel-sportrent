@@ -47,7 +47,7 @@
                             <label class="block text-gray-700 font-bold text-lg">Nombre de la cancha </label>
                             <input type="text" name="nombre_cancha" placeholder="Ej: Cancha Principal" required
                                    value="{{ old('nombre_cancha') }}"
-                                   class="text-lg p-4 w-full border border-blue-200 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 @error('nombre_cancha') border-red-500 @enderror">
+                                   class="text-lg p-4 w-full border border-blue-200 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-500 @error('nombre_cancha') @enderror">
                         </div>
 
                         <div class="space-y-3">

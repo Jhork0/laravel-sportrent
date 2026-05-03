@@ -19,4 +19,9 @@ class Cancha extends Model
         'foto',
         'direccion_cancha'
     ];
+
+    public function administradores()
+{
+    return $this->hasMany(Administra::class, 'id_cancha', 'id_cancha');
+}
 }

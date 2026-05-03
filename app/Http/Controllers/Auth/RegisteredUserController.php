@@ -31,41 +31,54 @@ class RegisteredUserController extends Controller
 public function store(Request $request): RedirectResponse
 {
     $request->validate([
+        'tipo_cuenta' => ['required', 'in:usuario,proveedor'],
         'cedula_persona' => ['required', 'string', 'max:20', 'unique:persona,cedula_persona'],
-        'name' => ['required', 'string', 'max:255'], // El nombre completo del input
+        'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:persona,correo'], 
         'direccion' => ['required', 'string', 'max:255'],
         'telefono' => ['required', 'string', 'max:20'],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
     ]);
 
-    // Lógica para repartir el nombre completo en tus columnas de persona
     $nombres = explode(' ', $request->name);
-    $primer_nombre = $nombres[0] ?? '';
-    $segundo_nombre = $nombres[1] ?? '';
-    $primer_apellido = $nombres[2] ?? '';
-    $segundo_apellido = $nombres[3] ?? '';
-
-    // PASO 1: Crear Persona con tus columnas exactas
-    Persona::create([
+    
+    // Usaremos una transacción para que si algo falla, no quede una Persona huérfana
+    $user = \DB::transaction(function () use ($request, $nombres) {
+    
+    // 1. Crear Persona
+    \App\Models\Persona::create([
         'cedula_persona' => $request->cedula_persona,
-        'primer_nombre' => $primer_nombre,
-        'segundo_nombre' => $segundo_nombre,
-        'primer_apellido' => $primer_apellido,
-        'segundo_apellido' => $segundo_apellido,
-        'correo' => $request->email,
-        'direccion' => $request->direccion,
-        'telefono' => $request->telefono,
+        'primer_nombre'  => $nombres[0] ?? '',
+        'segundo_nombre' => $nombres[1] ?? '',
+        'primer_apellido'=> $nombres[2] ?? '',
+        'segundo_apellido'=> $nombres[3] ?? '',
+        'correo'         => $request->email,
+        'direccion'      => $request->direccion,
+        'telefono'       => $request->telefono,
     ]);
 
-    // PASO 2: Crear Usuario
-    $user = User::create([
+    // 2. SIEMPRE crear usuario (esto es lo importante)
+    $user = \App\Models\User::create([
         'cedula_persona' => $request->cedula_persona,
-        'usuario_login' => $request->email, // Login con el correo
-        'contrasena' => Hash::make($request->password),
-        'estado' => 'activo',
+        'usuario_login'  => $request->email,
+        'contrasena'     => Hash::make($request->password),
+        'estado'         => 'activo',
     ]);
 
+    // 3. Si es proveedor, crear registro adicional
+    if ($request->tipo_cuenta === 'proveedor') {
+        \App\Models\Proveedor::create([
+            'cedula_propietario' => $request->cedula_persona,
+            'usuario_login'      => $request->email,
+            'contrasena'         => $user->contrasena, // reutiliza hash
+            'tipo_documento'     => 'CC',
+        ]);
+    }
+
+    return $user; 
+});
+
+    // 3. Login y Evento
     event(new Registered($user));
     Auth::login($user);
 

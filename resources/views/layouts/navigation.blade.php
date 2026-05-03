@@ -16,6 +16,10 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+
+                <x-nav-link :href="route('canchas.mis-canchas')" :active="request()->routeIs('canchas.mis-canchas')">
+                {{ __('Mis Canchas') }}
+                 </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->
@@ -70,6 +74,9 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('canchas.mis-canchas')" :active="request()->routeIs('canchas.mis-canchas')">
+            {{ __('Mis Canchas') }}
+        </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->

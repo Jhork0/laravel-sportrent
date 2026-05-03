@@ -32,6 +32,11 @@ Route::get('/login', function() { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/mis-canchas', [CanchaController::class, 'misCanchas'])->name('canchas.mis-canchas');
+Route::get('/canchas/{cancha}', [CanchaController::class, 'show'])->name('canchas.show');
+Route::get('/canchas/{id}/edit', [CanchaController::class, 'edit'])->name('canchas.edit');
+Route::put('/canchas/{id}', [CanchaController::class, 'update'])->name('canchas.update');
+Route::delete('/canchas/{id}', [CanchaController::class, 'destroy'])->name('canchas.destroy');
 // routes/web.php
 
 Route::get('/dashboard', [CanchaController::class, 'dashboard'])
